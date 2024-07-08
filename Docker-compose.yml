@@ -1,0 +1,33 @@
+version: "3"  # Versión del formato de docker-compose
+    
+services:  # Definición de servicios
+
+  db:  # Servicio para MySQL
+    image: mysql:5.7  # Usar la imagen oficial de MySQL versión 5.7 desde Docker Hub
+    volumes:
+      - db_data:/var/lib/mysql  # Mapea el volumen 'db_data' al directorio '/var/lib/mysql' dentro del contenedor para persistencia de datos
+    restart: always  # Siempre reiniciar el contenedor si se detiene
+    environment:  # Variables de entorno necesarias para configurar MySQL
+      MYSQL_ROOT_PASSWORD: somewordpress  # Contraseña para el usuario root de MySQL
+      MYSQL_DATABASE: wordpress  # Nombre de la base de datos que se creará al iniciar
+      MYSQL_USER: wordpress  # Usuario de la base de datos
+      MYSQL_PASSWORD: wordpress  # Contraseña del usuario de la base de datos
+    
+  wordpress:  # Servicio para WordPress
+    depends_on:  # Especifica que este servicio depende del servicio 'db'
+      - db  # El servicio 'db' debe iniciarse antes que este servicio
+    image: wordpress:latest  # Usar la última imagen oficial de WordPress desde Docker Hub
+    volumes:
+      - wordpress_data:/var/www/html  # Mapea el volumen 'wordpress_data' al directorio '/var/www/html' dentro del contenedor para persistencia de datos
+    ports:
+      - "8080:80"  # Mapea el puerto 8080 de la máquina anfitriona al puerto 80 del contenedor
+    restart: always  # Siempre reiniciar el contenedor si se detiene
+    environment:  # Variables de entorno necesarias para configurar WordPress
+      WORDPRESS_DB_HOST: db:3306  # Dirección del host de la base de datos y el puerto
+      WORDPRESS_DB_USER: wordpress  # Usuario de la base de datos
+      WORDPRESS_DB_PASSWORD: wordpress  # Contraseña del usuario de la base de datos
+      WORDPRESS_DB_NAME: wordpress  # Nombre de la base de datos
+
+volumes:  # Definición de volúmenes
+  db_data: {}  # Volumen para los datos de MySQL
+  wordpress_data: {}  # Volumen para los datos de WordPress
